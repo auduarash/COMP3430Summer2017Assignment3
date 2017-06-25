@@ -1,1 +1,6 @@
 *.o
+GPATH
+GTAGS
+GRTAGS
+fat32
+diskimage
