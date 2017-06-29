@@ -22,6 +22,7 @@ const char * INVALID_COMMAND = "Invalid command!\n";
 #define GET_CODE 4
 #define INVALID_CODE -1
 
+char printBuf[MAX_BUF];
 fat32BS * load_bpb_params(int fd) {
     fat32BS *bs;
     int array_size = sizeof(fat32BS) / sizeof(char);
@@ -42,40 +43,47 @@ fat32BS * load_bpb_params(int fd) {
     return bs;
 }
 
-void print_info_header(char *str) {
-    write(STDOUT_FILENO, "----", 4);
-    write(STDOUT_FILENO, str, strlen(str));
-    write(STDOUT_FILENO, "----\n", 5);
-}
 
-void print_info(char *title, char *info, int length) {
-    write(STDOUT_FILENO, title, strlen(title));
-    write(STDOUT_FILENO, " :", 2);
-    write(STDOUT_FILENO, info, length);
-    write(STDOUT_FILENO, "\n", 1);
+void print_info(char *info, int length) {
+    int i;
+    for (i = 0; i < length; i++) {
+        printBuf[i] = info[i];
+    }
+    printBuf[length] = '\0';
 }
 
 void print_device_info(fat32BS *bs) {
     //Device Info
-    print_info_header("Device Info");
-    print_info("OEM Name", bs->BS_OEMName, BS_OEMName_LENGTH);
-    print_info("Label", bs->BS_VolLab, BS_VolLab_LENGTH);
-    char mediaType[20];
-    sprintf(mediaType, "%#02x (%s) ", bs->BPB_Media, ( bs->BPB_Media == 0xf8 ? "fixed" : "removable") );
-    print_info("Media Type", mediaType, strlen(mediaType));
-    print_info("Size", mediaType, strlen(mediaType));
-    print_info("Drive Number", mediaType, strlen(mediaType));
+    printf("---Device Info---\n");
+    print_info(bs->BS_OEMName, BS_OEMName_LENGTH);
+    printf("OEM Name: %s\n", printBuf);
+    print_info(bs->BS_VolLab, BS_VolLab_LENGTH);
+    printf("Label: %s\n", printBuf);
+    printf("Media Type: %#02x (%s)\n", bs->BPB_Media, ( bs->BPB_Media == 0xf8 ? "fixed" : "removable") );
+    // long size = bs->BPB_SecPerClus; 
+    long size = bs->BPB_BytesPerSec;
+    size *= bs->BPB_TotSec32;
+    long sizeMB = size / ( 1024 * 1024);
+    double sizeGB = sizeMB / 1024.0;
+    printf("Size: %lu bytes (%luMB, %.3fGB)\n", size, sizeMB, sizeGB);
+    printf("Drive Number: %d (%s)\n", bs->BS_DrvNum, (bs->BS_DrvNum == 0x00 ? "floppy" : "hard disk"));
 
-/**
-     OEM Name: %s\n\
-     Label: %s\n\
-     File System Type: %s\n\
-     Media Type: %#02x (%s)\n";
-     char print_buf[MAX_BUF];
-     sprintf(print_buf, deviceInfo, bs->BS_OEMName, bs->BS_VolLab, bs->BS_FilSysType, bs->BPB_Media, mediaType);
-     write(STDOUT_FILENO, print_buf, strlen(print_buf));
-     **/
-     write(STDOUT_FILENO, "\n", 1);
+    printf("\n---Geometry---\n");
+    printf("Bytes per sector: %d\n", bs->BPB_BytesPerSec);
+    printf("Sectors per cluster: %d\n", bs->BPB_SecPerClus);
+    printf("Total sectors: %d\n", bs->BPB_TotSec32);
+
+    printf("\n---FS Info---\n");
+    print_info(bs->BS_VolLab, BS_VolLab_LENGTH);
+    printf("Volume ID: %s\n", printBuf);
+    printf("Version: %d:%d\n", bs->BPB_FSVerLow, bs->BPB_FSVerHigh);
+    printf("Reserved Sectors: %d\n", bs->BPB_RsvdSecCnt);
+    printf("Number of FATs: %d\n", bs->BPB_NumFATs);
+    printf("FAT Size: %d\n", bs->BPB_FATSz32);
+    int mirrored = ( 7 & bs->BPB_ExtFlags); //last 3 bits tell number of mirrored fats
+    int mirrored_enabled = (128 & bs->BPB_ExtFlags);
+    if (mirrored_enabled == 0) mirrored = 0;
+    printf("Mirrored FAT: %d (%s)\n", mirrored, (mirrored_enabled ? "yes" : "no"));
 }
 
 int open_device(char *drive_location) {
