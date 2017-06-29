@@ -6,6 +6,7 @@
 #include <fcntl.h>
 
 #include "fat32.h"
+#include "fat32_impl.h"
 #include "command_handlers.h"
 #include "program_logic.h"
 
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) {
 
     int fd = open_device(argv[1]);
     fat32BS *bs = load_bpb_params(fd);
+    set_root_dir(bs, fd);
 
     while (true) {
         int user_command = get_next_command();

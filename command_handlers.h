@@ -6,7 +6,7 @@
 
 void print_device_info(fat32BS *bs);
 
-
+void print_current_directory(fat32BS *bs);
 
 
 #endif

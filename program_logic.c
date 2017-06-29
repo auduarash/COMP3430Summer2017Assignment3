@@ -9,6 +9,9 @@
 #include "program_logic.h"
 #include "command_handlers.h"
 
+/*
+    Fetches the next
+*/
 int get_next_command() {
     static char *input_signal = "> ";
     static int input_size;
@@ -51,7 +54,8 @@ void handle_user_choice(fat32BS *bs, int user_choice) {
             break;
         }
         case DIR_CODE: {
-
+            print_current_directory(bs);
+            break;
         }
         default: {
             write(STDOUT_FILENO, "Valid command!\n", 15);

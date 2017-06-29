@@ -4,18 +4,6 @@
 #include "command_handlers.h"
 
 
-char printBuf[MAX_BUF];
-
-
-void print_info(char info[], int length) {
-    int i;
-    for (i = 0; i < length; i++) {
-        printBuf[i] = info[i];
-    }
-    printBuf[length] = 0;
-}
-
-
 void print_device_info(fat32BS *bs) {
     //Device Info
     printf("---Device Info---\n");
@@ -50,3 +38,7 @@ void print_device_info(fat32BS *bs) {
     printf("Mirrored FAT: %d (%s)\n", mirrored, (mirrored_enabled ? "yes" : "no"));
 }
 
+
+void print_current_directory(fat32BS *bs) {
+    
+}

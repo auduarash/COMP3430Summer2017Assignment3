@@ -47,4 +47,35 @@ struct fat32BS_struct {
 
 typedef struct fat32BS_struct fat32BS;
 
+
+//directory entry constants
+#define ATTR_READ_ONLY 0x01
+#define ATTR_HIDDEN 0x02
+#define ATTR_SYSTEM 0x04
+#define ATTR_VOLUME_ID 0x08
+#define ATTR_DIRECTORY 0x10
+#define ATTR_ARCHIVE 0x20
+#define ATTR_LONG_NAME 0x0F
+#define DIR_Name_LENGTH 11
+
+#pragma pack(push)
+#pragma pack(1)
+//fat32 directory entry struct
+struct fat32DE_struct {
+	char DIR_Name[DIR_Name_LENGTH];
+	uint8_t DIR_Attr;
+	uint8_t DIR_NTRes;
+	uint8_t DIR_CrtTimeTenth;
+	uint16_t DIR_CrtTime;
+	uint16_t DIR_CrtDate;
+	uint16_t DIR_LstAccDate;
+	uint16_t DIR_FstClusHI;
+	uint16_t DIR_WrtTime;
+	uint16_t DIR_WrtDate;
+	uint16_t DIR_FstClusLO;
+	uint32_t DIR_FileSize;
+};
+#pragma pack(pop)
+
+typedef struct fat32DE_struct fat32DE;
 #endif
