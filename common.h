@@ -1,8 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "fat32.h"
+
 //maximum buffer size for reading in input
-#define MAX_BUF 1024
+#define MAX_BUF 10000
 
 //possible user entries into terminal
 const char * INFO_COMMAND;
@@ -19,6 +21,10 @@ const char * INVALID_COMMAND;
 #define INVALID_CODE -1
 
 char printBuf[MAX_BUF];
+
+fat32BS *bs;
+fat32DE *curr_dir;
+int fd;
 
 
 void print_info(char info[], int length);

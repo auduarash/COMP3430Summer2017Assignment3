@@ -10,15 +10,14 @@
 #include "command_handlers.h"
 #include "program_logic.h"
 
-//possible user entries into terminal
-char*INFO_COMMAND = "info";
-char*DIR_COMMAND = "dir";
-char*CD_COMMAND = "cd";
-char*GET_COMMAND = "get";
-char*INVALID_COMMAND = "Invalid command!\n";
 
-fat32BS * load_bpb_params(int fd) {
-    fat32BS *bs;
+
+
+fat32BS *bs = NULL;
+fat32DE *curr_dir = NULL;
+int fd = -1;
+
+void load_bpb_params(int fd) {
     int array_size = sizeof(fat32BS) / sizeof(char);
     char bs_bpb[ array_size  ];
 
@@ -34,10 +33,7 @@ fat32BS * load_bpb_params(int fd) {
     }
     bs = malloc(sizeof(fat32BS));
     memcpy(bs, bs_bpb, sizeof(fat32BS));
-    return bs;
 }
-
-
 
 
 
@@ -59,16 +55,17 @@ int main(int argc, char *argv[]) {
     printf("Drive location is %s.\n", argv[1]);
 
 
-    int fd = open_device(argv[1]);
-    fat32BS *bs = load_bpb_params(fd);
-    set_root_dir(bs, fd);
+    open_device(argv[1]);
+    load_bpb_params(fd);
+
+    set_root_dir(fd);
 
     while (true) {
         int user_command = get_next_command();
         if (user_command == 0) {
             break;
         } else {
-            handle_user_choice(bs, user_command);
+            handle_user_choice(user_command);
         }
 
     }

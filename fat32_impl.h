@@ -3,6 +3,8 @@
 
 #include "fat32.h"
 
-void set_root_dir(fat32BS *bs, int fd);
+void set_root_dir(int fd);
+
+void print_directory_details();
 
 #endif

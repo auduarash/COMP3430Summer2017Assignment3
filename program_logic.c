@@ -42,19 +42,18 @@ int get_next_command() {
 }
 
 
-void handle_user_choice(fat32BS *bs, int user_choice) {
-
+void handle_user_choice(int user_choice) {
     switch(user_choice) {
         case INVALID_CODE: {
             write(STDOUT_FILENO, INVALID_COMMAND, strlen(INVALID_COMMAND));
             break;
         }
         case INFO_CODE: {
-            print_device_info(bs);
+            print_device_info();
             break;
         }
         case DIR_CODE: {
-            print_current_directory(bs);
+            print_current_directory();
             break;
         }
         default: {
@@ -66,11 +65,10 @@ void handle_user_choice(fat32BS *bs, int user_choice) {
 
 
 
-int open_device(char *drive_location) {
-    int fd = open(drive_location, O_RDONLY);
+void open_device(char *drive_location) {
+    fd = open(drive_location, O_RDONLY);
     if (fd == -1) {
         perror("open_device");
         exit(EXIT_FAILURE);
     }
-    return fd;
 }

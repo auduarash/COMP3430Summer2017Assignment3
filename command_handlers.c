@@ -2,9 +2,10 @@
 
 #include "common.h"
 #include "command_handlers.h"
+#include "fat32_impl.h"
 
 
-void print_device_info(fat32BS *bs) {
+void print_device_info() {
     //Device Info
     printf("---Device Info---\n");
     print_info(bs->BS_OEMName, BS_OEMName_LENGTH);
@@ -39,6 +40,6 @@ void print_device_info(fat32BS *bs) {
 }
 
 
-void print_current_directory(fat32BS *bs) {
-    
+void print_current_directory() {
+    print_directory_details();
 }

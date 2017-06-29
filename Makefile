@@ -4,8 +4,8 @@ CFLAGS=-Wall -g
 run:
 	make fat32 && ./fat32 /dev/usbstick
 
-fat32: main.o command_handlers.o program_logic.o fat32_impl.o common.o
-	$(GCC) $(CFLAGS) main.o command_handlers.o program_logic.o fat32_impl.o common.o -o fat32 
+fat32: common.o main.o command_handlers.o program_logic.o fat32_impl.o
+	$(GCC) $(CFLAGS) common.o main.o command_handlers.o program_logic.o fat32_impl.o -o fat32 
 
 main.o: main.c common.h
 	$(GCC) $(CFLAGS) -c main.c

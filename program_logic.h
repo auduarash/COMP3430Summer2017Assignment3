@@ -5,8 +5,8 @@
 
 int get_next_command();
 
-void handle_user_choice(fat32BS *bs, int user_choice);
+void handle_user_choice(int user_choice);
 
-int open_device(char *drive_location); 
+void open_device(char *drive_location); 
 
 #endif
