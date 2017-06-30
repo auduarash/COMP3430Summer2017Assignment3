@@ -3,9 +3,7 @@
 
 #include "fat32.h"
 
-int get_next_command();
-
-void handle_user_choice(int user_choice);
+void run_main_loop();
 
 void open_device(char *drive_location); 
 

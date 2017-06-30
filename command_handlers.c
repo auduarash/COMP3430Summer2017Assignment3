@@ -43,3 +43,9 @@ void print_device_info() {
 void print_current_directory() {
     print_directory_details();
 }
+
+
+
+void change_directory(char *new_dir) {
+    change_current_directory(new_dir);
+}

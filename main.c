@@ -52,23 +52,12 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Drive location is %s.\n", argv[1]);
-
-
     open_device(argv[1]);
     load_bpb_params(fd);
 
     set_root_dir(fd);
 
-    while (true) {
-        int user_command = get_next_command();
-        if (user_command == 0) {
-            break;
-        } else {
-            handle_user_choice(user_command);
-        }
-
-    }
+    run_main_loop();
     
     return 0;
 }

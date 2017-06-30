@@ -2,7 +2,7 @@
 #define FAT32_H
 
 #include <inttypes.h>
-
+#define _FILE_OFFSET_BITS 64
 /* boot sector constants */
 #define BS_OEMName_LENGTH 8
 #define BS_VolLab_LENGTH 11
