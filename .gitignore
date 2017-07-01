@@ -6,3 +6,5 @@ fat32
 diskimage
 .vscode/
 diskimage.img
+*.JPG
+*.TXT
