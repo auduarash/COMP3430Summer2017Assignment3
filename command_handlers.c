@@ -20,3 +20,8 @@ void print_current_directory() {
 void change_directory(char *new_dir) {
     change_current_directory(new_dir);
 }
+
+
+void get_file(char *f_name){
+    get_file_from_current_directory(f_name);
+}

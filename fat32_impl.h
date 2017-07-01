@@ -14,4 +14,6 @@ void print_fat32_device_info();
 void open_device(char *drive_location); 
 
 void load_bpb_params();
+
+void get_file_from_current_directory(char *f_name);
 #endif

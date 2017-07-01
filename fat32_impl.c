@@ -48,12 +48,21 @@ void convert_entry_name(char entry_name[]) {
     printBuf[p_count++] = 0;
 }
 
-long convert_high_low_to_cluster_number(long high_bit, long low_bit) {
-    long first_data_sector = bs->BPB_RsvdSecCnt + (bs->BPB_NumFATs * (long)bs->BPB_FATSz32);
-    long res = high_bit;
+long get_value_from_words(long high, long low) {
+    long res = high;
     res = res << 8;
-    res = res | low_bit;
-    return ((res-2) * bs->BPB_SecPerClus + first_data_sector) * bs->BPB_BytesPerSec;
+    res = res | low;
+    return res;
+}
+
+long get_byte_number_from_cluster_number(long clus_num) {
+    long first_data_sector = bs->BPB_RsvdSecCnt + (bs->BPB_NumFATs * (long)bs->BPB_FATSz32);
+    return ((clus_num-2) * bs->BPB_SecPerClus + first_data_sector) * bs->BPB_BytesPerSec;
+}
+
+long convert_high_low_to_cluster_number(long high_bit, long low_bit) {
+    long res = get_value_from_words(high_bit, low_bit);
+    return get_byte_number_from_cluster_number(res);
 }
 
 long get_directory_byte_number() {
@@ -84,8 +93,8 @@ void print_directory_details() {
     }
     // printf("Read %d characters \n", chars_read);
     fat32DE *listing;
-    listing = curr_dir = (fat32DE *) contents;
-
+    listing = (fat32DE *) contents;
+    memcpy(curr_dir, listing, sizeof(struct fat32DE_struct));
     print_info(curr_dir->DIR_Name, DIR_Name_LENGTH);
     printf("Directory Name: %s\n\n", printBuf);
     
@@ -107,6 +116,12 @@ void print_directory_details() {
 
 bool listing_is_navigable_directory(fat32DE *listing) {
     return (listing->DIR_Attr & ATTR_DIRECTORY) > 0 && //is a directory
+        (listing->DIR_Attr & ATTR_HIDDEN) == 0 && //is not hidden
+        (listing->DIR_Attr & ATTR_VOLUME_ID) == 0; //is not the root directory
+}
+
+bool listing_is_readable_file(fat32DE *listing) {
+    return (listing->DIR_Attr & ATTR_DIRECTORY) == 0 && //is not a directory
         (listing->DIR_Attr & ATTR_HIDDEN) == 0 && //is not hidden
         (listing->DIR_Attr & ATTR_VOLUME_ID) == 0; //is not the root directory
 }
@@ -206,4 +221,87 @@ void open_device(char *drive_location) {
         exit(EXIT_FAILURE);
     }
 
+}
+
+void download_file(fat32DE *listing, char *f_name) {
+    printf("Downloading %s\n", f_name);
+    char contents[4096];
+    long size = listing->DIR_FileSize;
+    long high = listing->DIR_FstClusHI;
+    long low = listing->DIR_FstClusLO;
+    long next_clus = get_value_from_words(high, low);
+    FILE *fp;
+    fp = fopen(f_name, "w");
+    while (size > 0) {
+        printf("%lu is the next cluster \n", next_clus);
+        if (next_clus >= 0x0FFFFFF8) {
+            printf("Reached end of file \n");
+            break;
+        } else {
+
+            long to_read = 4096;
+            if (size < to_read) {
+                to_read = size;
+            }
+            size -= to_read;
+            long byte_location = get_byte_number_from_cluster_number(next_clus);
+            lseek(fd, byte_location, SEEK_SET);
+            int chars_read = read(fd, contents, to_read);
+            if (chars_read < 0) {
+                perror("Error reading cluster");
+                exit(EXIT_FAILURE);
+            }
+            fwrite(contents, sizeof(char), sizeof(char)*chars_read, fp);
+
+
+            long fat_offset = next_clus * 4;
+            long fat_sec_num = bs->BPB_RsvdSecCnt + (fat_offset / bs->BPB_BytesPerSec);
+            long fat_ent_offset = fat_offset % bs->BPB_BytesPerSec;
+            printf("Next clus %lu. Fat sec %lu. Fat offset %lu\n", next_clus, fat_sec_num, fat_ent_offset);
+            long next_listing = (fat_sec_num * bs->BPB_BytesPerSec) + fat_ent_offset;
+            lseek(fd, next_listing, SEEK_SET);
+            chars_read = read(fd, &next_clus, 8);
+            if (chars_read < 0) {
+                perror("Reading cluster failed");
+                exit(EXIT_FAILURE);
+            }
+            next_clus = next_clus & 0x0FFFFFFF;
+        }
+    }
+    printf("File write successful\n");
+    fclose(fp);
+}
+
+
+void get_file_from_current_directory(char *f_name) {
+
+    long read_size = bs->BPB_BytesPerSec * bs->BPB_SecPerClus;
+    char contents[read_size];
+    long dir_bytes = get_directory_byte_number();
+    lseek(fd, dir_bytes, SEEK_SET);
+
+    int chars_read = read(fd, contents, read_size);
+    if (chars_read < 0) {
+        perror("error reading directory");
+        exit(EXIT_FAILURE);
+    }
+
+    fat32DE *listing = (fat32DE *) contents;
+    //TODO Refactor
+    while (listing != NULL && listing->DIR_Name[0]) {
+        int dir_name_valid = validate_dir_name(listing->DIR_Name[0]);;
+        if ( dir_name_valid && listing_is_readable_file(listing) ) {
+            convert_entry_name(listing->DIR_Name);
+            sscanf(printBuf, "%s", printBuf);
+            if (strcmp(f_name, printBuf) == 0) {
+                // memcpy(curr_dir, listing, sizeof(struct fat32DE_struct));
+                // printf("Found file %s\n", printBuf);
+                // printf("File start %d %d\n", listing->DIR_FstClusHI, listing->DIR_FstClusLO);
+                download_file(listing, f_name);
+                return;
+            }
+        }
+        listing++;
+    }
+    printf("File %s doesn't exist in current directory\n", f_name);
 }

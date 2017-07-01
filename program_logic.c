@@ -93,6 +93,12 @@ void run_main_loop() {
                     change_directory(dir);
                     break;
                 }
+                case GET_CODE: {
+                    char filename[strlen(buf)];
+                    sscanf(buf, "%s %s", filename, filename);
+                    get_file(filename);
+                    break;
+                }
                 default: {
                     write(STDOUT_FILENO, "Valid command!\n", 15);
                     break;

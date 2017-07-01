@@ -10,4 +10,6 @@ void print_current_directory();
 
 void change_directory(char *new_dir);
 
+void get_file(char *f_name);
+
 #endif
