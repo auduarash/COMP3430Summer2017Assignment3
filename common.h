@@ -22,10 +22,6 @@ const char * INVALID_COMMAND;
 
 char printBuf[MAX_BUF];
 
-fat32BS *bs;
-fat32DE *curr_dir;
-int fd;
-
 
 void print_info(char info[], int length);
 #endif

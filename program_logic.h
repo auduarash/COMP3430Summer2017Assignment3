@@ -5,6 +5,5 @@
 
 void run_main_loop();
 
-void open_device(char *drive_location); 
 
 #endif

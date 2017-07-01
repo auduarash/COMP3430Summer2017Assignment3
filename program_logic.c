@@ -88,7 +88,9 @@ void run_main_loop() {
                     break;
                 }
                 case CD_CODE: {
-                    change_directory(buf);
+                    char dir[strlen(buf)];
+                    sscanf(buf, "%s %s", dir, dir);
+                    change_directory(dir);
                     break;
                 }
                 default: {
@@ -101,12 +103,3 @@ void run_main_loop() {
     }
 }
 
-
-
-void open_device(char *drive_location) {
-    fd = open(drive_location, O_RDONLY);
-    if (fd == -1) {
-        perror("open_device");
-        exit(EXIT_FAILURE);
-    }
-}

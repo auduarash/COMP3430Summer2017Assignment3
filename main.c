@@ -13,28 +13,6 @@
 
 
 
-fat32BS *bs = NULL;
-fat32DE *curr_dir = NULL;
-int fd = -1;
-
-void load_bpb_params(int fd) {
-    int array_size = sizeof(fat32BS) / sizeof(char);
-    char bs_bpb[ array_size  ];
-
-    int seek = lseek(fd, 0, SEEK_SET);
-    if (seek < 0) {
-        perror("seek");
-        exit(EXIT_FAILURE);
-    }
-    int read_size = read(fd, bs_bpb, array_size);
-    if (read_size < 0) {
-        perror("read bpb");
-        exit(EXIT_FAILURE);
-    }
-    bs = malloc(sizeof(fat32BS));
-    memcpy(bs, bs_bpb, sizeof(fat32BS));
-}
-
 
 
 /**
@@ -53,9 +31,9 @@ int main(int argc, char *argv[]) {
     }
 
     open_device(argv[1]);
-    load_bpb_params(fd);
+    load_bpb_params();
 
-    set_root_dir(fd);
+    set_root_dir_file_entry();
 
     run_main_loop();
     
