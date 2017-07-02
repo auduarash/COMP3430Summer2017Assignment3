@@ -20,8 +20,6 @@ const char * INVALID_COMMAND;
 #define GET_CODE 4
 #define INVALID_CODE -1
 
-char printBuf[MAX_BUF];
-
 
 void print_info(char info[], int length);
 #endif
