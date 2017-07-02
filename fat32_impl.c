@@ -102,9 +102,7 @@ void print_directory_details() {
     print_info(curr_dir->DIR_Name, DIR_Name_LENGTH);
     printf("Directory Name: %s\n\n", printBuf);
     while (true) {
-        int count = 0;
-        int max = 4096 / 32;
-        while ( listing->DIR_Name[0] && count < max ){
+        while ( listing->DIR_Name[0] ){
             int dir_name_valid = validate_dir_name(listing->DIR_Name[0]);
             if ( dir_name_valid && (listing->DIR_Attr & ATTR_READ_ONLY) == 0 && (listing->DIR_Attr & ATTR_HIDDEN) == 0 && (listing->DIR_Attr & ATTR_VOLUME_ID) == 0){
 
@@ -114,12 +112,9 @@ void print_directory_details() {
                 } else {
                     printf("%-16s %d %d\n", printBuf, listing->DIR_FileSize, listing->DIR_Attr);
                 }
-                // printf("%#04x %#04x\n", listing->DIR_FstClusHI, listing->DIR_FstClusLO);
             }
-            count++;
             listing++;
         }
-        // break;
         long fat_offset = next_clus * 4;
         long fat_sec_num = bs->BPB_RsvdSecCnt + (fat_offset / bs->BPB_BytesPerSec);
         long fat_ent_offset = fat_offset % bs->BPB_BytesPerSec;
