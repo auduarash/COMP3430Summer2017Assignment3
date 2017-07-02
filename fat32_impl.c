@@ -110,7 +110,6 @@ void change_current_directory(char *newdir) {
         file_byte_position = get_byte_location_from_cluster_number(bs, next_cluster);
         read_byte_location_into_buffer(fd, file_byte_position, contents, read_size);
         listing = (fat32DE *) contents;
-        listing++;
     }
     printf("Directory %s doesn't exist\n", newdir);
 
@@ -219,9 +218,9 @@ void get_file_from_current_directory(char *f_name) {
 
     long read_size = bs->BPB_BytesPerSec * bs->BPB_SecPerClus;
     char contents[read_size];
-    uint64_t next_clus = convert_high_low_to_cluster_number(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
-    uint64_t dir_bytes = get_byte_location_from_cluster_number(bs, next_clus);
-    read_byte_location_into_buffer(fd, dir_bytes, contents, read_size);
+    uint64_t next_cluster = convert_high_low_to_cluster_number(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
+    uint64_t file_byte_position = get_byte_location_from_cluster_number(bs, next_cluster);
+    read_byte_location_into_buffer(fd, file_byte_position, contents, read_size);
 
     fat32DE *listing = (fat32DE *) contents;
     //TODO Refactor
@@ -239,6 +238,16 @@ void get_file_from_current_directory(char *f_name) {
             }
             listing++;
         }
+        //Get the next cluster entry for the file
+        uint64_t cluster_entry_bytes = calculate_fat_entry_for_cluster(bs, next_cluster);
+        read_bytes_into_variable(fd, cluster_entry_bytes, &next_cluster, 8);
+        next_cluster = next_cluster & 0x0FFFFFFF;
+        if (next_cluster >= 0x0FFFFFF7) break; //break if there is no more cluster
+
+        //update to the next cluster for the directory
+        file_byte_position = get_byte_location_from_cluster_number(bs, next_cluster);
+        read_byte_location_into_buffer(fd, file_byte_position, contents, read_size);
+        listing = (fat32DE *) contents;
     }
     printf("File %s doesn't exist in current directory\n", f_name);
 }

@@ -33,7 +33,7 @@ bool is_dir_name_valid(char first) {
 
 bool is_printable_entry(fat32DE * d) {
     return is_dir_name_valid(d->DIR_Name[0]) //name should be valid
-        && (d->DIR_Attr & ATTR_READ_ONLY) == 0 //not read only
+        // && (d->DIR_Attr & ATTR_READ_ONLY) == 0 //not read only
         && (d->DIR_Attr & ATTR_HIDDEN) == 0  // not hidden
         && (d->DIR_Attr & ATTR_VOLUME_ID) == 0; //not the root directory
 }
@@ -57,7 +57,7 @@ uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint64_t next_clus) {
 
 
 uint64_t get_number_of_lines_in_entry(fat32BS *bs) {
-    return bs->BPB_BytesPerSec / 32;
+    return (bs->BPB_SecPerClus * (uint64_t)bs->BPB_BytesPerSec) / 32;
 }
 
 bool listing_is_navigable_directory(fat32DE *listing) {
