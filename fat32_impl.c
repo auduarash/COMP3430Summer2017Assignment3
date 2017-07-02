@@ -80,6 +80,10 @@ void print_directory_details() {
     print_info(bs->BS_VolLab, BS_VolLab_LENGTH);
     printf("Volume: %s\n", printBuf);
 
+    long next_clus = get_value_from_words(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
+    printf("Next cluster is %lu\n", next_clus);
+    if (next_clus == 0) next_clus = 2;
+    bool eoc_reached = false;
 
     long file_byte_position = get_directory_byte_number();
     long read_size = bs->BPB_BytesPerSec * bs->BPB_SecPerClus;
@@ -97,21 +101,48 @@ void print_directory_details() {
     memcpy(curr_dir, listing, sizeof(struct fat32DE_struct));
     print_info(curr_dir->DIR_Name, DIR_Name_LENGTH);
     printf("Directory Name: %s\n\n", printBuf);
-    
-    while ( listing->DIR_Name[0] ){
-        int dir_name_valid = validate_dir_name(listing->DIR_Name[0]);
-        if ( dir_name_valid && (listing->DIR_Attr & ATTR_HIDDEN) == 0 && (listing->DIR_Attr & ATTR_VOLUME_ID) == 0){
+    while (true) {
+        int count = 0;
+        int max = 4096 / 32;
+        while ( listing->DIR_Name[0] && count < max ){
+            int dir_name_valid = validate_dir_name(listing->DIR_Name[0]);
+            if ( dir_name_valid && (listing->DIR_Attr & ATTR_READ_ONLY) == 0 && (listing->DIR_Attr & ATTR_HIDDEN) == 0 && (listing->DIR_Attr & ATTR_VOLUME_ID) == 0){
 
-            convert_entry_name(listing->DIR_Name);
-            if ((listing->DIR_Attr & ATTR_DIRECTORY) > 0) {
-                printf("%-16s %d/\n", printBuf, listing->DIR_FileSize);
-            } else {
-                printf("%-16s %d\n", printBuf, listing->DIR_FileSize);
+                convert_entry_name(listing->DIR_Name);
+                if ((listing->DIR_Attr & ATTR_DIRECTORY) > 0) {
+                    printf("%-16s %d/ %d\n", printBuf, listing->DIR_FileSize, listing->DIR_Attr);
+                } else {
+                    printf("%-16s %d %d\n", printBuf, listing->DIR_FileSize, listing->DIR_Attr);
+                }
+                // printf("%#04x %#04x\n", listing->DIR_FstClusHI, listing->DIR_FstClusLO);
             }
-            // printf("%#04x %#04x\n", listing->DIR_FstClusHI, listing->DIR_FstClusLO);
+            count++;
+            listing++;
         }
-        listing++;
-    }
+        // break;
+        long fat_offset = next_clus * 4;
+        long fat_sec_num = bs->BPB_RsvdSecCnt + (fat_offset / bs->BPB_BytesPerSec);
+        long fat_ent_offset = fat_offset % bs->BPB_BytesPerSec;
+        long next_listing = (fat_sec_num * bs->BPB_BytesPerSec) + fat_ent_offset;
+        lseek(fd, next_listing, SEEK_SET);
+        chars_read = read(fd, &next_clus, 8);
+        if (chars_read < 0) {
+            perror("Reading cluster failed");
+            exit(EXIT_FAILURE);
+        }
+        next_clus = next_clus & 0x0FFFFFFF;
+        if (next_clus >= 0x0FFFFFF7 || eoc_reached) break;
+        file_byte_position = get_byte_number_from_cluster_number(next_clus);
+        
+        lseek(fd, file_byte_position, SEEK_SET);
+        chars_read = read(fd, contents, read_size);
+        if (chars_read < 0) {
+            perror("Couldn't read from sector");
+            exit(EXIT_FAILURE);
+        }
+        // printf("Read %d characters \n", chars_read);
+        listing = (fat32DE *) contents;
+    } 
 }
 
 bool listing_is_navigable_directory(fat32DE *listing) {
