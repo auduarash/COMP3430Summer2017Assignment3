@@ -11,19 +11,57 @@
 #include "fat32_calculations.h"
 #include "utilities.h"
 
-static fat32DE *curr_dir; //the current directory in the navigation blah
-static fat32BS *bs; //bpb holder
-static int fd; //file descriptor for directory
+static fat32DE *curr_dir = NULL; //the current directory in the navigation blah
+static fat32BS *bs = NULL; //bpb holder
+static int fd = 0; //file descriptor for directory
+
+void validate_bpb_params() {
+    assert(bs != NULL);
+    uint64_t root_dir_sectors = calculate_root_dir_sectors(bs);
+    assert(root_dir_sectors == FAT32_ROOT_DIR_SECTORS);
+    if (root_dir_sectors != FAT32_ROOT_DIR_SECTORS) {
+        perror("Invalid fat type. Please enter a fat32 Volume");
+        exit(EXIT_FAILURE);
+    }
+    uint64_t cluster_count = calculate_cluster_count(bs);
+    assert(cluster_count >= MIN_FAT32_CLUSTER_COUNT);
+    if (cluster_count < MIN_FAT32_CLUSTER_COUNT) {
+        perror("Invalid fat type. Please enter a fat32 Volume\n");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
+void load_and_validate_bpb_params() {
+    uint64_t bpb_root = 0;
+    bs = (fat32BS *) malloc(sizeof(struct fat32BS_struct));
+    assert(bs != NULL);
+    read_bytes_into_variable(fd, bpb_root, bs, sizeof(struct fat32BS_struct));
+    validate_bpb_params();
+}
+
+
+
+
+void open_device(char *drive_location) {
+    fd = open(drive_location, O_RDONLY);
+    if (fd == -1) {
+        perror("open_device");
+        exit(EXIT_FAILURE);
+    }
+}
+
 
 void set_root_dir_file_entry() {
     uint64_t first_cluster_sector_bytes = get_byte_location_from_cluster_number(bs, bs->BPB_RootClus);
     curr_dir = (fat32DE *) malloc(sizeof(struct fat32DE_struct));
+    assert(curr_dir != NULL);
     read_bytes_into_variable(fd, first_cluster_sector_bytes, curr_dir, sizeof(struct fat32DE_struct));
 }
 
 void print_directory_details() {
-    assert(curr_dir != 0);
-
+    assert(curr_dir != NULL); //Make sure this has been initialized
+    assert(bs != NULL);
     char printBuf[MAX_BUF];
     long read_size = bs->BPB_BytesPerSec * bs->BPB_SecPerClus; // TODO Refactor
     char contents[read_size];
@@ -150,36 +188,6 @@ void print_fat32_device_info() {
     printf("Mirrored FAT: %d (%s)\n", mirrored, (mirrored_enabled ? "yes" : "no"));
 }
 
-
-void load_bpb_params() {
-    int array_size = sizeof(fat32BS) / sizeof(char);
-    char bs_bpb[ array_size  ];
-
-    int seek = lseek(fd, 0, SEEK_SET);
-    if (seek < 0) {
-        perror("seek");
-        exit(EXIT_FAILURE);
-    }
-    int read_size = read(fd, bs_bpb, array_size);
-    if (read_size < 0) {
-        perror("read bpb");
-        exit(EXIT_FAILURE);
-    }
-    bs = (fat32BS *) malloc(sizeof(struct fat32BS_struct));
-    memcpy(bs, bs_bpb, sizeof(struct fat32BS_struct));
-}
-
-
-
-
-void open_device(char *drive_location) {
-    fd = open(drive_location, O_RDONLY);
-    if (fd == -1) {
-        perror("open_device");
-        exit(EXIT_FAILURE);
-    }
-
-}
 
 void download_file(fat32DE *listing, char *f_name) {
     printf("Downloading %s\n", f_name);

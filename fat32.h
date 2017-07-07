@@ -2,6 +2,11 @@
 #define FAT32_H
 
 #include <inttypes.h>
+
+//fat 32 verfification
+#define FAT32_ROOT_DIR_SECTORS 0
+#define MIN_FAT32_CLUSTER_COUNT 65525
+
 #define _FILE_OFFSET_BITS 64
 /* boot sector constants */
 #define BS_OEMName_LENGTH 8

@@ -7,13 +7,7 @@
 
 #include "fat32.h"
 #include "fat32_impl.h"
-#include "command_handlers.h"
 #include "program_logic.h"
-
-
-
-
-
 
 /**
     main.c
@@ -31,7 +25,7 @@ int main(int argc, char *argv[]) {
     }
 
     open_device(argv[1]);
-    load_bpb_params();
+    load_and_validate_bpb_params();
 
     set_root_dir_file_entry();
 

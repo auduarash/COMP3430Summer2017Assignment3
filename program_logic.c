@@ -4,11 +4,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #include "common.h"
 #include "fat32.h"
+#include "fat32_impl.h"
 #include "program_logic.h"
-#include "command_handlers.h"
 
 
 
@@ -65,6 +66,13 @@ int get_next_command(char *buf){
 
 }
 
+void convert_to_upper(char *text) {
+    int i;
+    for (i = 0; i < strlen(text); i++) {
+        text[i] = toupper(text[i]);
+    }
+}
+
 void run_main_loop() {
     static char buf[MAX_BUF];
 
@@ -80,23 +88,25 @@ void run_main_loop() {
                     break;
                 }
                 case INFO_CODE: {
-                    print_device_info();
+                    print_fat32_device_info();
                     break;
                 }
                 case DIR_CODE: {
-                    print_current_directory();
+                    print_directory_details();
                     break;
                 }
                 case CD_CODE: {
                     char dir[strlen(buf)];
                     sscanf(buf, "%s %s", dir, dir);
-                    change_directory(dir);
+                    convert_to_upper(dir);
+                    change_current_directory(dir);
                     break;
                 }
                 case GET_CODE: {
                     char filename[strlen(buf)];
                     sscanf(buf, "%s %s", filename, filename);
-                    get_file(filename);
+                    convert_to_upper(filename);
+                    get_file_from_current_directory(filename);
                     break;
                 }
                 default: {
