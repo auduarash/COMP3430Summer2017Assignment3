@@ -6,6 +6,7 @@
 //fat 32 verfification
 #define FAT32_ROOT_DIR_SECTORS 0
 #define MIN_FAT32_CLUSTER_COUNT 65525
+#define BPB_ROOT 0
 
 #define _FILE_OFFSET_BITS 64
 /* boot sector constants */

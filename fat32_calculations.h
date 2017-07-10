@@ -13,9 +13,9 @@ bool is_printable_entry(fat32DE * d);
 
 bool is_dir_name_valid(char *dir_name);
 
-uint64_t convert_high_low_to_cluster_number(uint64_t high, uint64_t low);
+uint16_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low);
 
-uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint64_t next_clus);
+uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint16_t next_clus);
 
 uint64_t get_number_of_lines_in_entry(fat32BS *bs);
 
@@ -28,4 +28,10 @@ uint64_t num_bytes_in_cluster(fat32BS *bs);
 uint64_t calculate_root_dir_sectors(fat32BS *bs);
 
 uint64_t calculate_cluster_count(fat32BS *bs);
+
+bool is_attr_directory(uint8_t dir_attr);
+
+bool is_attr_hidden(uint8_t dir_attr);
+
+bool is_attr_root_dir(uint8_t dir_attr);
 #endif

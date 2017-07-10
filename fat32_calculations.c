@@ -47,15 +47,15 @@ bool is_printable_entry(fat32DE * d) {
     Uses the high bit and low bit to calculate the next cluster number.
     This function will return 2 if the 
 */
-uint64_t convert_high_low_to_cluster_number(uint64_t high, uint64_t low) {
-    uint64_t clus_num = high << 8;
+uint16_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low) {
+    uint16_t clus_num = high << 8;
     clus_num = clus_num | low;
     return clus_num;
 }
 
 
-uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint64_t next_clus) {
-    uint64_t fat_offset = next_clus * 4;
+uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint16_t next_clus) {
+    uint64_t fat_offset = next_clus * 4l;
     uint64_t fat_sec_num = bs->BPB_RsvdSecCnt + (fat_offset / bs->BPB_BytesPerSec);
     uint64_t fat_ent_offset = fat_offset % bs->BPB_BytesPerSec;
     uint64_t next_listing = (fat_sec_num * bs->BPB_BytesPerSec) + fat_ent_offset;
