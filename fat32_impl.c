@@ -97,6 +97,7 @@ void print_directory_details() {
                 char *printableEntryName = convert_file_entry_name(listing->DIR_Name);
                 char *file_end = (is_attr_directory(listing->DIR_Attr) ? "/" : "");
                 printf("%-16s %d%s\n", printableEntryName, listing->DIR_FileSize, file_end);
+                free(printableEntryName);
             }
             listing++;
         }
@@ -120,7 +121,7 @@ void change_current_directory(char *newdir) {
     uint64_t read_size = bs->BPB_BytesPerSec * bs->BPB_SecPerClus;
     char contents[read_size];
 
-    uint16_t next_cluster = convert_high_low_to_cluster_number(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
+    uint64_t next_cluster = convert_high_low_to_cluster_number(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
     uint64_t file_byte_position = get_byte_location_from_cluster_number(bs, next_cluster);
     read_byte_location_into_buffer(fd, file_byte_position, contents, read_size);
 
@@ -145,7 +146,7 @@ void change_current_directory(char *newdir) {
         }
         //Get the next cluster entry for the file
         uint64_t cluster_entry_bytes = calculate_fat_entry_for_cluster(bs, next_cluster);
-        read_bytes_into_variable(fd, cluster_entry_bytes, &next_cluster, sizeof(uint16_t));
+        read_bytes_into_variable(fd, cluster_entry_bytes, &next_cluster, sizeof(uint64_t));
         next_cluster = next_cluster & 0x0FFFFFFF;
         if (next_cluster >= 0x0FFFFFF7) break; //break if there is no more cluster
 
@@ -197,7 +198,7 @@ void print_fat32_device_info() {
 void download_file(fat32DE *listing, char *f_name) {
     printf("Downloading %s\n", f_name);
     uint64_t size = listing->DIR_FileSize;
-    uint16_t next_clus = convert_high_low_to_cluster_number(listing->DIR_FstClusHI,listing->DIR_FstClusLO);
+    uint64_t next_clus = convert_high_low_to_cluster_number(listing->DIR_FstClusHI,listing->DIR_FstClusLO);
     FILE *fp;
     fp = fopen(f_name, "w");
     while (size > 0) {
@@ -218,7 +219,7 @@ void download_file(fat32DE *listing, char *f_name) {
             
             //get the next cluster
             next_clus = calculate_fat_entry_for_cluster(bs, next_clus);
-            read_bytes_into_variable(fd, next_clus, &next_clus, sizeof(uint16_t));
+            read_bytes_into_variable(fd, next_clus, &next_clus, sizeof(uint64_t));
             next_clus = next_clus & 0x0FFFFFFF;
         }
     }
@@ -231,7 +232,7 @@ void get_file_from_current_directory(char *f_name) {
 
     long read_size = bs->BPB_BytesPerSec * bs->BPB_SecPerClus;
     char contents[read_size];
-    uint16_t next_cluster = convert_high_low_to_cluster_number(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
+    uint64_t next_cluster = convert_high_low_to_cluster_number(curr_dir->DIR_FstClusHI, curr_dir->DIR_FstClusLO);
     uint64_t file_byte_position = get_byte_location_from_cluster_number(bs, next_cluster);
     read_byte_location_into_buffer(fd, file_byte_position, contents, read_size);
 
@@ -248,12 +249,13 @@ void get_file_from_current_directory(char *f_name) {
                     download_file(listing, f_name);
                     return;
                 }
+                free(compBuf);
             }
             listing++;
         }
         //Get the next cluster entry for the file
         uint64_t cluster_entry_bytes = calculate_fat_entry_for_cluster(bs, next_cluster);
-        read_bytes_into_variable(fd, cluster_entry_bytes, &next_cluster, sizeof(uint16_t));
+        read_bytes_into_variable(fd, cluster_entry_bytes, &next_cluster, sizeof(uint64_t));
         next_cluster = next_cluster & 0x0FFFFFFF;
         if (next_cluster >= 0x0FFFFFF7) break; //break if there is no more cluster
 

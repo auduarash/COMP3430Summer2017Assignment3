@@ -47,8 +47,8 @@ bool is_printable_entry(fat32DE * d) {
     Uses the high bit and low bit to calculate the next cluster number.
     This function will return 2 if the 
 */
-uint16_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low) {
-    uint16_t clus_num = high << 8;
+uint64_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low) {
+    uint64_t clus_num = high << 8;
     clus_num = clus_num | low;
     return clus_num;
 }

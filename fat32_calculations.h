@@ -13,7 +13,7 @@ bool is_printable_entry(fat32DE * d);
 
 bool is_dir_name_valid(char *dir_name);
 
-uint16_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low);
+uint64_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low);
 
 uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint16_t next_clus);
 
