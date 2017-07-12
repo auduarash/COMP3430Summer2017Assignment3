@@ -236,6 +236,8 @@ void download_file(fat32DE *listing, char *f_name) {
         uint64_t next_clus;
         read_bytes_into_variable(fd, next_clus_bytes, &next_clus, sizeof(uint64_t));
         next_clus = next_clus & NEXT_CLUSTER_MASK;
+
+        //THIS PART HANDLES READING IN OF SEQUENTIAL CLUSTERS
         // printf("My file starts at %llu\n", curr_clus);
         while (next_clus < MAX_CLUSTER_NUMBER && next_clus == curr_clus+1 ) {
             // printf("Reading an extra cluster %llu\n", next_clus);

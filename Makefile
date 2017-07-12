@@ -1,6 +1,8 @@
 GCC=gcc-4.8
 CFLAGS=-Wall -g
 
+default: fat32
+
 run:
 	make fat32 && ./fat32 /dev/usbstick
 
