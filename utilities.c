@@ -5,7 +5,9 @@
 #include "utilities.h"
 
 
-
+/*
+    Given a byte location, read the contents into a buffer.
+*/
 void read_byte_location_into_buffer(int fd, uint64_t byte_position, char buffer[], uint64_t chars_to_read) {
     assert(fd != -1);
     lseek(fd, byte_position, SEEK_SET);
@@ -16,7 +18,10 @@ void read_byte_location_into_buffer(int fd, uint64_t byte_position, char buffer[
     }
 }
 
-
+/*
+    Given a file descriptor and a byte position in a
+    ffat32 device, read the contents into the file.
+*/
 void read_byte_location_into_file(int fd, FILE *fp, uint64_t byte_position, uint64_t chars_to_read) {
     char buffer[chars_to_read];
     assert(fd != -1);
@@ -29,7 +34,9 @@ void read_byte_location_into_file(int fd, FILE *fp, uint64_t byte_position, uint
     fwrite(buffer, sizeof(char), sizeof(char)*chars_read, fp);
 }
 
-//TODO issue might be here
+/*
+    Read bytes from a device into a variable.
+*/
 void read_bytes_into_variable(int fd, uint64_t byte_position, void *destination, int num_bytes_to_read) {
     assert(fd != -1);
     lseek(fd, byte_position, SEEK_SET);
@@ -40,9 +47,10 @@ void read_bytes_into_variable(int fd, uint64_t byte_position, void *destination,
     }
 }
 
-
-
-
+/*
+    Create a string from an array of characters.
+    Null terminate after copying.
+*/
 void print_chars_into_buffer(char dest[], char info[], int length) {
     int i;
     for (i = 0; i < length; i++) {

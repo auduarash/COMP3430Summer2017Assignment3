@@ -48,7 +48,7 @@ bool is_printable_entry(fat32DE * d) {
     This function will return 2 if the 
 */
 uint64_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low) {
-    uint64_t clus_num = high << 8;
+    uint64_t clus_num = high << 8; //Shift by 8 bits
     clus_num = clus_num | low;
     return clus_num;
 }
@@ -68,16 +68,16 @@ uint64_t get_number_of_lines_in_entry(fat32BS *bs) {
 }
 
 bool is_attr_directory(uint8_t dir_attr) {
-    return (dir_attr & ATTR_DIRECTORY) != 0;
+    return (dir_attr & ATTR_DIRECTORY) != false;
 }
 
 bool is_attr_hidden(uint8_t dir_attr) {
-    return (dir_attr & ATTR_HIDDEN) != 0;
+    return (dir_attr & ATTR_HIDDEN) != false;
 }
 
 //is the directory the root directory?
 bool is_attr_root_dir(uint8_t dir_attr) {
-    return (dir_attr & ATTR_VOLUME_ID) != 0;
+    return (dir_attr & ATTR_VOLUME_ID) != false;
 }
 
 bool listing_is_navigable_directory(fat32DE *listing) {

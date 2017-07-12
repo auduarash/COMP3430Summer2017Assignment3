@@ -4,6 +4,7 @@
 #include <inttypes.h>
 
 //fat 32 verfification
+#define FAT32_SIGNATURE 0xAA55
 #define FAT32_ROOT_DIR_SECTORS 0
 #define MIN_FAT32_CLUSTER_COUNT 65525
 #define BPB_ROOT 0
@@ -13,6 +14,17 @@
 #define BS_OEMName_LENGTH 8
 #define BS_VolLab_LENGTH 11
 #define BS_FilSysType_LENGTH 8 
+
+#define MIRRORED_FAT_BITS 7
+#define FAT_MIRROR_ENABLED_BIT 128
+
+#define BPB_MEDIA_FIXED 0xF8
+#define BS_DRIVE_SECTOR_FLOPPY 0x00
+
+#define NEXT_CLUSTER_MASK 0x0FFFFFFF
+#define MAX_CLUSTER_NUMBER 0x0FFFFFF7
+
+#define CLUSTER_SIZE_BYTES 4096
 
 #pragma pack(push)
 #pragma pack(1)

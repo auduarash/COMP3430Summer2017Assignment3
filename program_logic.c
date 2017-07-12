@@ -12,7 +12,9 @@
 #include "program_logic.h"
 
 
-
+/*
+    Compares a command to a user enter string.
+*/
 bool cmdcmp(const char *actual, char user_entry[]) {
     int i = strlen(user_entry) - 1;
     while (i >= 0 && user_entry[i] == ' ') {
@@ -25,6 +27,9 @@ bool cmdcmp(const char *actual, char user_entry[]) {
     return scanned == 1 && pos == strlen(user_entry) && strcmp(actual, buf) == 0;
 }
 
+/*
+    Compares a command to a string that contains a command an an argument.
+*/
 bool cmdcmptwo(const char *actual, char user_entry[]) {
     int i = strlen(user_entry) -1;
     while (i >= 0 && user_entry[i] == ' ') {
