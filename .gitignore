@@ -9,3 +9,6 @@ diskimage.img
 *.JPG
 *.TXT
 *.PDF
+submission
+.DS_Store
+*.zip
