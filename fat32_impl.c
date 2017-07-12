@@ -14,7 +14,7 @@
 static fat32DE *curr_dir = NULL; //the current directory in the navigation blah
 static fat32BS *bs = NULL; //bpb holder
 static int fd = -1; //file descriptor for directory
-static char curr_dir_name[8];
+
 
 /*
     Validate the boot parameters
@@ -36,7 +36,7 @@ void validate_bpb_params() {
     uint64_t sector_510_bytes = 510;
     uint16_t fat32_signature;
     read_bytes_into_variable(fd, sector_510_bytes, &fat32_signature, sizeof(uint16_t));
-    printf("I got signature %d\n", fat32_signature);
+    // printf("I got signature %d\n", fat32_signature);
     assert(fat32_signature == FAT32_SIGNATURE);
     if (fat32_signature != FAT32_SIGNATURE) {
         perror("Invalid fat32 signature");
@@ -97,8 +97,6 @@ void print_directory_details() {
 
     print_chars_into_buffer(printBuf, bs->BS_VolLab, BS_VolLab_LENGTH);
     printf("Volume: %s\n", printBuf);
-    print_chars_into_buffer(printBuf, curr_dir->DIR_Name, DIR_Name_LENGTH);
-    printf("Directory Name: %s\n\n", printBuf);
     int total_lines = get_number_of_lines_in_entry(bs);
     while (true) {
         int lines_read = 0; //We shouldn't read more than a certain number of lines per sector
@@ -238,9 +236,9 @@ void download_file(fat32DE *listing, char *f_name) {
         uint64_t next_clus;
         read_bytes_into_variable(fd, next_clus_bytes, &next_clus, sizeof(uint64_t));
         next_clus = next_clus & NEXT_CLUSTER_MASK;
-        printf("My file starts at %llu\n", curr_clus);
+        // printf("My file starts at %llu\n", curr_clus);
         while (next_clus < MAX_CLUSTER_NUMBER && next_clus == curr_clus+1 ) {
-            printf("Reading an extra cluster %llu\n", next_clus);
+            // printf("Reading an extra cluster %llu\n", next_clus);
             curr_clus = next_clus;
             assert(size > 0); //We can't have to read an empty cluster
             if (size >= CLUSTER_SIZE_BYTES) {
