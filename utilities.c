@@ -10,7 +10,10 @@
 */
 void read_byte_location_into_buffer(int fd, uint64_t byte_position, char buffer[], uint64_t chars_to_read) {
     assert(fd != -1);
-    lseek(fd, byte_position, SEEK_SET);
+    if ( lseek(fd, byte_position, SEEK_SET) < 0) {
+        perror("Error lseeking: ");
+        exit(EXIT_FAILURE);
+    }
     int chars_read = read(fd, buffer, chars_to_read);
     if (chars_read < 0) {
         perror("Error reading cluster");
@@ -25,7 +28,10 @@ void read_byte_location_into_buffer(int fd, uint64_t byte_position, char buffer[
 void read_byte_location_into_file(int fd, FILE *fp, uint64_t byte_position, uint64_t chars_to_read) {
     char buffer[chars_to_read];
     assert(fd != -1);
-    lseek(fd, byte_position, SEEK_SET);
+    if ( lseek(fd, byte_position, SEEK_SET) < 0) {
+        perror("Error lseeking: ");
+        exit(EXIT_FAILURE);
+    }
     int chars_read = read(fd, buffer, chars_to_read);
     if (chars_read < 0) {
         perror("Error reading cluster");
@@ -37,9 +43,12 @@ void read_byte_location_into_file(int fd, FILE *fp, uint64_t byte_position, uint
 /*
     Read bytes from a device into a variable.
 */
-void read_bytes_into_variable(int fd, uint64_t byte_position, void *destination, int num_bytes_to_read) {
+void read_bytes_into_variable(int fd, uint64_t byte_position, void *destination, uint64_t num_bytes_to_read) {
     assert(fd != -1);
-    lseek(fd, byte_position, SEEK_SET);
+    if ( lseek(fd, byte_position, SEEK_SET) < 0) {
+        perror("Error lseeking: ");
+        exit(EXIT_FAILURE);
+    }
     int bytes_read = read(fd, destination, num_bytes_to_read);
     if (bytes_read < 0) {
         perror("Error reading bytes");
