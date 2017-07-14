@@ -15,7 +15,7 @@ bool is_dir_name_valid(char *dir_name);
 
 uint64_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low);
 
-uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint16_t next_clus);
+uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint64_t next_clus);
 
 uint64_t get_number_of_lines_in_entry(fat32BS *bs);
 

@@ -237,25 +237,31 @@ void download_file(fat32DE *listing, char *f_name) {
         uint64_t next_clus;
         read_bytes_into_variable(fd, next_clus_bytes, &next_clus, sizeof(uint64_t));
         next_clus = next_clus & NEXT_CLUSTER_MASK;
-
-        //THIS PART HANDLES READING IN OF SEQUENTIAL CLUSTERS
-        // printf("My file starts at %llu\n", curr_clus);
-        while (next_clus < MAX_CLUSTER_NUMBER && next_clus == curr_clus+1 ) {
-            // printf("Reading an extra cluster %llu\n", next_clus);
-            curr_clus = next_clus;
-            assert(size > 0); //We can't have to read an empty cluster
-            if (size >= CLUSTER_SIZE_BYTES) {
-                size -= CLUSTER_SIZE_BYTES;
-                to_read += CLUSTER_SIZE_BYTES;
-            } else {
-                to_read += size;
-                size = 0;
-            }
-            next_clus_bytes = calculate_fat_entry_for_cluster(bs, next_clus);
-            read_bytes_into_variable(fd, next_clus_bytes, &next_clus, sizeof(uint64_t));
-            next_clus = next_clus & NEXT_CLUSTER_MASK;
-        }
-
+        // if (next_clus == curr_clus+1) {
+        //     //THIS PART HANDLES READING IN OF SEQUENTIAL CLUSTERS
+        //     printf("My file starts at %llu\n", curr_clus);
+        //     printf("Next cluster at %llu\n", next_clus);
+        //     while (next_clus < MAX_CLUSTER_NUMBER && next_clus == curr_clus+1 ) {
+        //         printf("Reading an extra cluster %llu\n", next_clus);
+        //         curr_clus = next_clus;
+        //         printf("Size is %llu \n", size);
+        //         assert(size >= 0); //We can't have to read an empty cluster
+        //         if (size >= CLUSTER_SIZE_BYTES) {
+        //             size -= CLUSTER_SIZE_BYTES;
+        //             to_read += CLUSTER_SIZE_BYTES;
+        //         } else {
+        //             to_read += size;
+        //             size = 0;
+        //         }
+        //         next_clus_bytes = calculate_fat_entry_for_cluster(bs, next_clus);
+        //         read_bytes_into_variable(fd, next_clus_bytes, &next_clus, sizeof(uint64_t));
+        //         next_clus = next_clus & NEXT_CLUSTER_MASK;
+        //         printf("Next cluster at nnow %llu\n", next_clus);
+        //     }
+        // }
+        printf("Next cluster is %llu\n", next_clus);
+        curr_clus = next_clus;
+        printf("Reading %llu bytes from %lu \n", to_read, byte_location);
         read_byte_location_into_file(fd, fp, byte_location, to_read);
     }
     printf("File write successful\n");

@@ -54,7 +54,7 @@ uint64_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low) {
 }
 
 
-uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint16_t next_clus) {
+uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint64_t next_clus) {
     uint64_t fat_offset = next_clus * 4l;
     uint64_t fat_sec_num = bs->BPB_RsvdSecCnt + (fat_offset / bs->BPB_BytesPerSec);
     uint64_t fat_ent_offset = fat_offset % bs->BPB_BytesPerSec;
@@ -109,13 +109,13 @@ uint64_t calculate_root_dir_sectors(fat32BS *bs) {
 
 uint64_t calculate_cluster_count(fat32BS *bs) {
     uint64_t rds = calculate_root_dir_sectors(bs);
-    uint32_t fatsz;
+    uint64_t fatsz;
     if (bs->BPB_FATSz16 != 0) {
         fatsz = bs->BPB_FATSz16;
     } else {
         fatsz = bs->BPB_FATSz32;
     }
-    uint32_t totSec;
+    uint64_t totSec;
     if(bs->BPB_TotSec16 != 0) {
         totSec = bs->BPB_TotSec16;
     } else {
