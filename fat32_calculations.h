@@ -29,6 +29,8 @@ uint64_t calculate_root_dir_sectors(fat32BS *bs);
 
 uint64_t calculate_cluster_count(fat32BS *bs);
 
+uint64_t get_cluster_size_bytes(fat32BS *bs);
+
 bool is_attr_directory(uint8_t dir_attr);
 
 bool is_attr_hidden(uint8_t dir_attr);

@@ -55,10 +55,11 @@ uint64_t convert_high_low_to_cluster_number(uint8_t high, uint8_t low) {
 
 
 uint64_t calculate_fat_entry_for_cluster(fat32BS *bs, uint64_t next_clus) {
-    uint64_t fat_offset = next_clus * 4l;
+    uint64_t fat_offset = next_clus * 4;
     uint64_t fat_sec_num = bs->BPB_RsvdSecCnt + (fat_offset / bs->BPB_BytesPerSec);
     uint64_t fat_ent_offset = fat_offset % bs->BPB_BytesPerSec;
     uint64_t next_listing = (fat_sec_num * bs->BPB_BytesPerSec) + fat_ent_offset;
+    printf("%llu fat entry offset \n", fat_ent_offset);
     return next_listing;
 }
 
@@ -125,4 +126,9 @@ uint64_t calculate_cluster_count(fat32BS *bs) {
     uint64_t dataSec = totSec - (bs->BPB_RsvdSecCnt + (bs->BPB_NumFATs * (uint64_t)fatsz) + rds);
     uint64_t countofClusters = dataSec / bs->BPB_SecPerClus;
     return countofClusters;
+}
+
+
+uint64_t get_cluster_size_bytes(fat32BS *bs) {
+    return bs->BPB_SecPerClus * (uint64_t) bs->BPB_BytesPerSec;
 }

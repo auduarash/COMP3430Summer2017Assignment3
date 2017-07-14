@@ -24,7 +24,6 @@
 #define NEXT_CLUSTER_MASK 0x0FFFFFFF
 #define MAX_CLUSTER_NUMBER 0x0FFFFFF7
 
-#define CLUSTER_SIZE_BYTES 4096
 
 #pragma pack(push)
 #pragma pack(1)
