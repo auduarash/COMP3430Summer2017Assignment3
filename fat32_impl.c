@@ -28,6 +28,7 @@ void validate_bpb_params() {
         exit(EXIT_FAILURE);
     }
     uint64_t cluster_count = calculate_cluster_count(bs);
+    // printf("The cluster count is %llu\n", cluster_count);
     assert(cluster_count >= MIN_FAT32_CLUSTER_COUNT);
     if (cluster_count < MIN_FAT32_CLUSTER_COUNT) {
         perror("Invalid fat type. Please enter a fat32 Volume\n");

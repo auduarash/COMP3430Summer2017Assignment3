@@ -109,13 +109,13 @@ uint64_t calculate_root_dir_sectors(fat32BS *bs) {
 
 uint64_t calculate_cluster_count(fat32BS *bs) {
     uint64_t rds = calculate_root_dir_sectors(bs);
-    uint16_t fatsz;
+    uint32_t fatsz;
     if (bs->BPB_FATSz16 != 0) {
         fatsz = bs->BPB_FATSz16;
     } else {
         fatsz = bs->BPB_FATSz32;
     }
-    uint16_t totSec;
+    uint32_t totSec;
     if(bs->BPB_TotSec16 != 0) {
         totSec = bs->BPB_TotSec16;
     } else {
