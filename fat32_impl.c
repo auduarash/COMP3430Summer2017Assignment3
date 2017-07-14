@@ -246,10 +246,7 @@ void download_file(fat32DE *listing, char *f_name) {
         uint64_t next_clus;
         read_bytes_into_variable(fd, next_clus_bytes, &next_clus, sizeof(uint64_t));
         next_clus = next_clus & NEXT_CLUSTER_MASK;
-        // printf("Next cluster is %llu \n", next_clus);
-        // printf("Next cluster is %llu\n", next_clus);
-        // printf("My file starts at %llu\n", curr_clus);
-        // printf("Next cluster at %llu\n", next_clus);
+        //THIS PART HANDLES READING IN OF SEQUENTIAL CLUSTERS
         while (next_clus < MAX_CLUSTER_NUMBER && next_clus == curr_clus+1 ) {
             // printf("Reading an extra cluster %llu\n", next_clus);
             curr_clus = next_clus;
@@ -290,7 +287,6 @@ void get_file_from_current_directory(char *f_name) {
             if ( listing_is_readable_file(listing) ) {
                 char *compBuf = convert_file_entry_name(listing->DIR_Name);
                 if (strcmp(f_name, compBuf) == 0) {
-                    // memcpy(curr_dir, listing, sizeof(struct fat32DE_struct));
                     // printf("Found file %s\n", printBuf);
                     // printf("File start %d %d\n", listing->DIR_FstClusHI, listing->DIR_FstClusLO);
                     download_file(listing, f_name);
