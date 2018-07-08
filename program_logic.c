@@ -13,7 +13,7 @@
 
 
 /*
-    Compares a command to a user enter string.
+    Compares a command to a user entered string.
 */
 bool cmdcmp(const char *actual, char user_entry[]) {
     int i = strlen(user_entry) - 1;
